@@ -19,10 +19,13 @@
 
 ## 安装
 
-### npm（推荐）
+### npm
+
+目前可以直接装 Release 里的 tarball；发布到 npm registry 后可以按包名安装。
 
 ```bash
-npm install -g dsh-qgis
+npm install -g https://github.com/cdllI/dsh-qgis/releases/download/v0.2.0/dsh-qgis-0.2.0.tgz
+# 发布后：npm install -g dsh-qgis
 ```
 
 然后让 agent 用 `plugin_manager` 的 `install_bundle`，目标填 npm 全局包目录（Windows：
