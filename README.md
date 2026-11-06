@@ -1,4 +1,4 @@
-English | [绠€浣撲腑鏂嘳(README.zh-CN.md)
+English | [简体中文](README.zh-CN.md)
 
 # dsh-qgis
 
@@ -58,7 +58,8 @@ posts the PNG straight into the chat, and every tool reports the absolute path o
 
 ## Quick start
 
-> 鎵弿鎴戠殑鏁版嵁鏂囦欢澶癸紝鎶婅€曞湴鍜屾案涔呭熀鏈啘鐢板仛鍙犲姞锛岀粺璁¤鍗犻潰绉紝鏈€鍚庡嚭涓€寮?300dpi 鐨勫浘銆?
+> 扫描我的数据文件夹，把耕地和永久基本农田做叠加，统计被占面积，最后出一张 300dpi 的图。
+
 The agent calls `qgis_scan`, `qgis_find`, `qgis_run`, `qgis_check`, `qgis_map` and `qgis_history`. You get
 layer files under `exports/`, a PNG figure in the chat, and a methods document.
 
@@ -80,4 +81,3 @@ layer files under `exports/`, a PNG figure in the chat, and a methods document.
 - One worker serializes calls: a long algorithm blocks the next tool call, not a QGIS window.
 - This bundle does not open, edit or save `.qgz` projects; it reads them for layer inventory.
 - Arbitrary PyQGIS code execution is deliberately not exposed as a tool.
-
