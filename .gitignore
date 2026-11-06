@@ -1,0 +1,14 @@
+.probe/
+.install/
+exports/
+scripts/
+.qgis-agent/
+node_modules/
+dsh-qgis/qgis.config.json
+*.log
+__pycache__/
+*.tgz
+dist/
+.gee-cache/
+outputs/
+.probe*/

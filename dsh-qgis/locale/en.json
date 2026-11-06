@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "QGIS Agent",
+    "description": "Headless QGIS 4 analysis and cartography: inventory data, run processing algorithms, quality-check results, render publication maps."
+  }
+}

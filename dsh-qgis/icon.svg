@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="QGIS Agent">
+  <defs>
+    <linearGradient id="sheet" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f766e"/>
+      <stop offset="1" stop-color="#065f46"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#sheet)"/>
+  <path d="M12 20.5 24 16l12 4.5V46l-12 4L12 45.5V20.5Z" fill="#e6fffb" opacity="0.95"/>
+  <path d="M24 16v30M36 20.5V50" stroke="#0f766e" stroke-width="1.6" opacity="0.55"/>
+  <path d="M14 27.5 21 30M14 34 21 31.5M27 36.5l7-2.5M27 29l7 3.5" stroke="#0f766e" stroke-width="1.4" opacity="0.45" stroke-linecap="round"/>
+  <circle cx="21" cy="30" r="2.2" fill="#f59e0b"/>
+  <circle cx="33" cy="34" r="2.2" fill="#f59e0b"/>
+  <circle cx="33" cy="27.5" r="2.2" fill="#f59e0b"/>
+  <path d="M45 17.5l1.1 3.4 3.4 1.1-3.4 1.1-1.1 3.4-1.1-3.4-3.4-1.1 3.4-1.1 1.1-3.4Z" fill="#fde68a"/>
+</svg>

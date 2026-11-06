@@ -1,0 +1,55 @@
+{
+  "name": "dsh-qgis",
+  "version": "0.2.0",
+  "description": "Headless QGIS 4 spatial analysis, hydrology and cartography for DeepSeek Harness",
+  "type": "module",
+  "license": "MIT",
+  "author": "ruifeng ni",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cdllI/dsh-qgis.git"
+  },
+  "homepage": "https://github.com/cdllI/dsh-qgis#readme",
+  "bugs": {
+    "url": "https://github.com/cdllI/dsh-qgis/issues"
+  },
+  "keywords": [
+    "qgis",
+    "pyqgis",
+    "gis",
+    "geospatial",
+    "hydrology",
+    "deepseek",
+    "deepseek-harness",
+    "dsh",
+    "plugin",
+    "cartography"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "engine.py",
+    "skill.md",
+    "cordis.patch.yml",
+    "qgis.config.example.json",
+    "locale/*.json",
+    "icon.svg",
+    "north.svg",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}
