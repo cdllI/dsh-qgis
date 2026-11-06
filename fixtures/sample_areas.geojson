@@ -5,7 +5,7 @@
   "features": [
     {
       "type": "Feature",
-      "properties": { "name": "太谷区", "code": "140726", "area_ha": 1234.5 },
+      "properties": { "name": "Area A", "code": "A", "area_ha": 1234.5 },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[[112.45, 37.75], [112.55, 37.75], [112.55, 37.85], [112.45, 37.85], [112.45, 37.75]]]
@@ -13,7 +13,7 @@
     },
     {
       "type": "Feature",
-      "properties": { "name": "祁县", "code": "140727", "area_ha": 678.9 },
+      "properties": { "name": "Area B", "code": "B", "area_ha": 678.9 },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[[112.57, 37.76], [112.63, 37.76], [112.63, 37.82], [112.57, 37.82], [112.57, 37.76]]]
@@ -21,7 +21,7 @@
     },
     {
       "type": "Feature",
-      "properties": { "name": "平遥县", "code": "140728", "area_ha": 2310.2 },
+      "properties": { "name": "Area C", "code": "C", "area_ha": 2310.2 },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[[112.66, 37.72], [112.76, 37.72], [112.76, 37.80], [112.66, 37.80], [112.66, 37.72]]]

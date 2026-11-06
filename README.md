@@ -1,4 +1,4 @@
-English | [简体中文](README.zh-CN.md)
+English | [绠€浣撲腑鏂嘳(README.zh-CN.md)
 
 # dsh-qgis
 
@@ -14,7 +14,9 @@ to be open and no GUI is involved:
 
 ## Requirements
 
-- Windows with QGIS **4.x** installed (tested on 4.0.2 at `E:\QGIS 4.0.2`).
+- Windows with QGIS **4.x** installed (tested with 4.0.2). The plugin discovers the install automatically;
+  if it is in a non-standard place, the agent can locate `bin\qgis-bin.exe` and persist it with
+  `qgis_status qgis_dir=<directory>`.
 - DeepSeek Harness with the plugin manager.
 - Nothing else: the engine uses the Python that ships with QGIS.
 
@@ -26,7 +28,7 @@ The package is available as a release tarball today; once published to the npm r
 works by name.
 
 ```bash
-npm install -g https://github.com/cdllI/dsh-qgis/releases/download/v0.2.0/dsh-qgis-0.2.0.tgz
+npm install -g https://github.com/cdllI/dsh-qgis/releases/download/v0.2.1/dsh-qgis-0.2.1.tgz
 # after publishing: npm install -g dsh-qgis
 ```
 
@@ -47,16 +49,16 @@ without touching the clone, copy it first:
 Copy-Item -Recurse -Force dsh-qgis .install\dsh-qgis
 ```
 
-If QGIS is not at `E:\QGIS 4.0.2`, copy `dsh-qgis/qgis.config.example.json` to `dsh-qgis/qgis.config.json`
-and set `qgisDir`; the plugin also scans drive roots for `QGIS*` and `OSGeo4W*` folders automatically.
+If QGIS is not discoverable, do not edit configuration files by hand: ask the agent to locate the directory
+that contains `bin\qgis-bin.exe` and call `qgis_status qgis_dir=<directory>`. The plugin starts the engine
+from there and saves the choice to `qgis.config.json` for later calls.
 
 After installation the tools `qgis_*` appear in the session. There is deliberately no QGIS dock: `qgis_map`
 posts the PNG straight into the chat, and every tool reports the absolute path of what it saved.
 
 ## Quick start
 
-> 扫描 D:\data\太谷 这个文件夹，把耕地和永久基本农田做叠加，统计被占面积，最后出一张 300dpi 的图。
-
+> 鎵弿鎴戠殑鏁版嵁鏂囦欢澶癸紝鎶婅€曞湴鍜屾案涔呭熀鏈啘鐢板仛鍙犲姞锛岀粺璁¤鍗犻潰绉紝鏈€鍚庡嚭涓€寮?300dpi 鐨勫浘銆?
 The agent calls `qgis_scan`, `qgis_find`, `qgis_run`, `qgis_check`, `qgis_map` and `qgis_history`. You get
 layer files under `exports/`, a PNG figure in the chat, and a methods document.
 
@@ -78,3 +80,4 @@ layer files under `exports/`, a PNG figure in the chat, and a methods document.
 - One worker serializes calls: a long algorithm blocks the next tool call, not a QGIS window.
 - This bundle does not open, edit or save `.qgz` projects; it reads them for layer inventory.
 - Arbitrary PyQGIS code execution is deliberately not exposed as a tool.
+

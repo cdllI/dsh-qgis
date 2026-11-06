@@ -5,9 +5,10 @@ QGIS 4 interpreter; every tool call is one operation inside that engine. QGIS do
 and no GUI is involved.
 
 Start with `qgis_status`. It reports the QGIS version, providers, algorithm count, CJK fonts, the GRASS
-install (if any) and the output folders. If it fails, the message says whether QGIS is missing or the engine
-could not start. When status lists `grass: <version>`, `grass:*` algorithms are safe to use; when it says
-"not configured", stay with `native:*` and `gdal:*` instead of forcing GRASS.
+install (if any) and the output folders. It also discovers QGIS automatically. If it reports that QGIS is
+missing, do not ask the user to edit configuration: locate the directory that contains `bin\qgis-bin.exe`
+(search the available drives or the OS package list), then call `qgis_status qgis_dir=<directory>`. The
+plugin starts the engine from that directory and saves the choice to `qgis.config.json` for later calls.
 
 ## The workflow
 
@@ -66,7 +67,7 @@ qgis_scan  →  qgis_find  →  qgis_run  →  qgis_check  →  qgis_map  →  q
 ```
 qgis_find query="buffer"
 qgis_run algorithm="native:buffer"
-  parameters={"INPUT":"D:/data/farmland.shp","DISTANCE":500,"SEGMENTS":8,"DISSOLVE":false}
+  parameters={"INPUT":"<data>/farmland.gpkg","DISTANCE":500,"SEGMENTS":8,"DISSOLVE":false}
 qgis_check path="<OUTPUT from run>" expected_crs="EPSG:4547"
 ```
 
@@ -84,7 +85,7 @@ qgis_run algorithm="native:intersection" parameters={"INPUT":"...","OVERLAY":"..
 
 ```
 qgis_run algorithm="native:zonalstatisticsfb"
-  parameters={"INPUT":"regions.gpkg","INPUT_RASTER":"ndvi.tif","RASTER_BAND":1,"COLUMN_PREFIX":"ndvi_"}
+  parameters={"INPUT":"<data>/regions.gpkg","INPUT_RASTER":"<data>/ndvi.tif","RASTER_BAND":1,"COLUMN_PREFIX":"ndvi_"}
 ```
 
 **Reproject a layer**
@@ -99,14 +100,14 @@ qgis_run algorithm="native:reprojectlayer"
 ```
 qgis_find query="points from table"
 qgis_run algorithm="native:createpointslayerfromtable"
-  parameters={"INPUT":"stations.xlsx","XFIELD":"lon","YFIELD":"lat","TARGET_CRS":"EPSG:4326"}
+  parameters={"INPUT":"<data>/stations.xlsx","XFIELD":"lon","YFIELD":"lat","TARGET_CRS":"EPSG:4326"}
 ```
 
 **A figure for a paper**
 
 ```
-qgis_map layers=[{"path":"exports/farmland_buffer.gpkg"},{"path":"D:/data/admin.shp"}]
-  title="太谷区耕地缓冲分析" subtitle="500 m buffer, 2024" source="数据：XX"
+qgis_map layers=[{"path":"<workspace>/exports/farmland_buffer.gpkg"},{"path":"<data>/admin.gpkg"}]
+  title="研究区耕地缓冲分析" subtitle="500 m buffer, 2024" source="数据：XX"
   dpi=300 width_mm=190 height_mm=140
 ```
 

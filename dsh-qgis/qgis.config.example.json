@@ -1,6 +1,6 @@
 {
-  "qgisDir": "E:\\QGIS 4.0.2",
-  "fontDir": "C:\\Windows\\Fonts",
+  "qgisDir": "",
+  "fontDir": "",
   "timeoutMs": 600000,
   "idleMs": 600000,
   "outDir": ""

@@ -67,9 +67,9 @@ profile's `package.json` or `cordis.patch.yml`.
 - Parameter optionality is `flags() & QgsProcessingParameterDefinition.FlagOptional`, not `isOptional()`.
 - Import `QgsProviderRegistry` explicitly; `providerMetadata('ogr').querySublayers(path)` is how a
   GeoPackage's layers are enumerated.
-- North arrows live at `<prefix>/svg/arrows/NorthArrow_01.svg`.
-- GRASS auto-detection in QGIS 4.0.2 only looks for folders named `grass-7.*`; this bundle's GRASS is
-  `apps\grass\grass84`, so the Host must export `GISBASE` (it discovers it under `<qgisDir>\apps\grass`).
+- North arrows: the bundle ships `north.svg`; QGIS's `<prefix>/svg/arrows/` files are only a fallback.
+- GRASS auto-detection in QGIS 4 only looks for folders named `grass-7.*`; a typical OSGeo4W bundle names
+  it `grass84`, so the Host must export `GISBASE` (it discovers it under `<qgisDir>\apps\grass`).
   Without it, every `grass:*` call fails immediately with "GRASS GIS folder is not configured".
 
 ## Failure modes that already bit us
@@ -82,15 +82,15 @@ profile's `package.json` or `cordis.patch.yml`.
   the workspace registry contains WSL UNC paths (`\\wsl.localhost\...`) and stat on a stopped distro blocks
   for minutes. The bundle no longer serves a panel or any HTTP route; keep tool code async and never touch
   UNC paths. `execFileSync` is likewise banned (the QGIS version probe is async and cached).
-- **Do not scan `C:\Windows\Fonts`.** `QT_QPA_FONTDIR` + `QFontDatabase.families()` loads hundreds of faces
-  and can block for minutes; register `simhei.ttf`/`msyh.ttc` with `addApplicationFont` instead, cache the
-  result, and never call `families()` per request.
+- **Do not scan the whole Windows Fonts directory.** `QT_QPA_FONTDIR` + `QFontDatabase.families()` loads
+  hundreds of faces and can block for minutes; register `simhei.ttf`/`msyh.ttc` with `addApplicationFont`
+  instead, cache the result, and never call `families()` per request.
 
 ## Spawning the interpreter
 
-`E:\QGIS 4.0.2\bin\python-qgis.bat` contains spaces, and `cmd.exe` cannot take a quoted command line
-reliably through `spawn` argv. The Host writes a wrapper at `%LOCALAPPDATA%\qgisagent\run-engine.cmd` and
-spawns `cmd.exe /d /c <wrapper>`.
+`<QGIS>\bin\python-qgis.bat` contains spaces, and `cmd.exe` cannot take a quoted command line reliably
+through `spawn` argv. The Host writes a wrapper at `%LOCALAPPDATA%\qgisagent\run-engine.cmd` and spawns
+`cmd.exe /d /c <wrapper>`.
 
 ## Runtime output
 
@@ -101,6 +101,6 @@ workspace).
 ## Fonts and encoding
 
 The engine sets `QT_QPA_PLATFORM=offscreen`; it does **not** set `QT_QPA_FONTDIR`. At startup it registers
-SimHei/Microsoft YaHei/SimSun from `C:\Windows\Fonts` with `addApplicationFont`, resolves the family with
-`QFontInfo`, and caches the result for the worker's lifetime. All JSON is UTF-8; the worker sets
+SimHei/Microsoft YaHei/SimSun from the Windows Fonts directory with `addApplicationFont`, resolves the family
+with `QFontInfo`, and caches the result for the worker's lifetime. All JSON is UTF-8; the worker sets
 `PYTHONIOENCODING=utf-8` and `PYTHONUNBUFFERED=1`.

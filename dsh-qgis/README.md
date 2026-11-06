@@ -34,7 +34,7 @@ PNG straight into the chat and every tool reports the absolute path it saved.
 
 ## Use
 
-> 扫描 D:\data\太谷，把耕地和永久基本农田做叠加，统计被占面积，最后出一张 300 dpi 的图。
+> 扫描我的数据文件夹，把耕地和永久基本农田做叠加，统计被占面积，最后出一张 300 dpi 的图。
 
 The agent calls `qgis_scan` → `qgis_find` → `qgis_run` → `qgis_check` → `qgis_map` → `qgis_history`.
 Outputs go to `<workspace>\exports`, scripts to `<workspace>\scripts`.
@@ -53,8 +53,10 @@ Outputs go to `<workspace>\exports`, scripts to `<workspace>\scripts`.
 
 ## Configuration
 
-If QGIS is not discoverable, copy `qgis.config.example.json` to `qgis.config.json` beside `index.js` and set
-`qgisDir`. `GISBASE` is detected from `<qgisDir>\apps\grass` automatically.
+QGIS is discovered automatically from the drive roots, `Program Files`, `QGIS_PREFIX_PATH` and
+`OSGEO4W_ROOT`. If it lives elsewhere, the agent should call `qgis_status qgis_dir=<install directory>`
+(the directory containing `bin\qgis-bin.exe`); the plugin saves it to `qgis.config.json`.
+`GISBASE` is detected from `<qgisDir>\apps\grass` automatically.
 
 ## License
 

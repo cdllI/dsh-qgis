@@ -6,9 +6,9 @@ nothing here touches a QGIS GUI or opens a port.
 
 Run with the QGIS-bundled interpreter, for example:
 
-    cmd /c "E:\\QGIS 4.0.2\\bin\\python-qgis.bat" engine.py
+    cmd /c "<QGIS>/bin/python-qgis.bat" engine.py
 
-The caller sets QT_QPA_PLATFORM=offscreen and QT_QPA_FONTDIR before start.
+The caller sets QT_QPA_PLATFORM=offscreen and optionally QGIS_AGENT_FONT_DIR.
 """
 
 import contextlib
@@ -22,7 +22,6 @@ import time
 import traceback
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
-os.environ.setdefault("QT_QPA_FONTDIR", os.path.join(os.environ.get("WINDIR", r"C:\Windows"), "Fonts"))
 
 from qgis.core import (  # noqa: E402
     QgsApplication,
@@ -244,7 +243,9 @@ class Engine:
         font_dir = os.environ.get("QGIS_AGENT_FONT_DIR") or ""
         if font_dir:
             roots.append(font_dir)
-        roots.append(os.path.join(os.environ.get("WINDIR", r"C:\Windows"), "Fonts"))
+        windir = os.environ.get("WINDIR") or os.environ.get("SystemRoot") or ""
+        if windir:
+            roots.append(os.path.join(windir, "Fonts"))
         names = ("simhei.ttf", "msyh.ttc", "msyhbd.ttc", "simsun.ttc", "Deng.ttf")
         added = []
         for root in dict.fromkeys(roots):
@@ -865,7 +866,7 @@ class Engine:
         if isinstance(layers_arg, str):
             layers_arg = [{"path": layers_arg}]
         if not layers_arg:
-            raise ValueError("layers is required, for example [{\"path\": \"D:/data/roads.shp\"}]")
+            raise ValueError("layers is required, for example [{\"path\": \"path/to/roads.gpkg\"}]")
         dpi = int(args.get("dpi") or 300)
         title = str(args.get("title") or "")
         subtitle = str(args.get("subtitle") or "")

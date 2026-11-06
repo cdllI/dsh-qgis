@@ -67,7 +67,7 @@ await run('qgis_map', {
     { path: path.resolve('fixtures', 'sample_areas.geojson'), name: '耕地' },
     { path: path.join(RUN, 'exports', 'areas_buffer.gpkg'), name: '300 米缓冲' },
   ],
-  title: '太谷区耕地缓冲分析',
+  title: '研究区耕地缓冲分析',
   subtitle: '300 m buffer',
   source: 'smoke test',
   dpi: 200,

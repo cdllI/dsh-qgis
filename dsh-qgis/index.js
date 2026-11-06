@@ -34,7 +34,12 @@ function settings(config) {
   return {
     qgisDir: typeof raw.qgisDir === 'string' ? raw.qgisDir.trim() : '',
     pythonBat: typeof raw.pythonBat === 'string' ? raw.pythonBat.trim() : '',
-    fontDir: typeof raw.fontDir === 'string' && raw.fontDir.trim() ? raw.fontDir.trim() : 'C:\\Windows\\Fonts',
+    fontDir:
+      typeof raw.fontDir === 'string' && raw.fontDir.trim()
+        ? raw.fontDir.trim()
+        : process.env.WINDIR
+          ? path.join(process.env.WINDIR, 'Fonts')
+          : '',
     outDir: typeof raw.outDir === 'string' ? raw.outDir.trim() : '',
     timeoutMs: Number.isFinite(raw.timeoutMs) && raw.timeoutMs > 0 ? raw.timeoutMs : 600_000,
     idleMs: Number.isFinite(raw.idleMs) && raw.idleMs > 0 ? raw.idleMs : 600_000,
@@ -278,14 +283,14 @@ export function apply(ctx, config) {
     const dir = engineDir();
     if (!dir) {
       throw new Error(
-        'QGIS 4 was not found. Install QGIS 4.x, or set "qgisDir" in qgis.config.json ' +
-          '(for example "E:\\\\QGIS 4.0.2") and call qgis_status again.',
+        'QGIS 4 was not found. Locate the directory that contains bin\\qgis-bin.exe, then call ' +
+          'qgis_status with qgis_dir=<that directory>; the plugin saves it to qgis.config.json.',
       );
     }
     const wrapper = writeWrapper(dir);
     resetReady();
     childPid = 0;
-    child = spawn('cmd.exe', ['/d', '/c', wrapper], {
+    const worker = spawn('cmd.exe', ['/d', '/c', wrapper], {
       env: {
         ...process.env,
         QT_QPA_PLATFORM: 'offscreen',
@@ -297,10 +302,13 @@ export function apply(ctx, config) {
       windowsHide: true,
       stdio: ['pipe', 'pipe', 'pipe'],
     });
-    logHost(`spawn engine pid=${child.pid ?? 0} qgis=${dir} grass=${process.env.GISBASE || grassDirFor(dir) || '-'}`);
-    childPid = child.pid ?? 0;
-    child.stdout.setEncoding('utf8');
-    child.stdout.on('data', (chunk) => {
+    child = worker;
+    logHost(`spawn engine pid=${worker.pid ?? 0} qgis=${dir} grass=${process.env.GISBASE || grassDirFor(dir) || '-'}`);
+    childPid = worker.pid ?? 0;
+    worker.stdout.setEncoding('utf8');
+    worker.stdout.on('data', (chunk) => {
+      // A replaced worker's buffered output must not pollute the new one.
+      if (child !== worker) return;
       buffer += chunk;
       let index;
       while ((index = buffer.indexOf('\n')) >= 0) {
@@ -309,11 +317,13 @@ export function apply(ctx, config) {
         if (line) settle(line);
       }
     });
-    child.stderr.setEncoding('utf8');
-    child.stderr.on('data', (chunk) => {
+    worker.stderr.setEncoding('utf8');
+    worker.stderr.on('data', (chunk) => {
+      if (child !== worker) return;
       stderrTail = (stderrTail + chunk).slice(-4000);
     });
-    child.on('error', (error) => {
+    worker.on('error', (error) => {
+      if (child !== worker) return;
       if (readyReject) readyReject(error);
       for (const [, entry] of pending) {
         clearTimeout(entry.timer);
@@ -322,7 +332,8 @@ export function apply(ctx, config) {
       pending.clear();
       child = undefined;
     });
-    child.on('exit', (code) => {
+    worker.on('exit', (code) => {
+      if (child !== worker) return;
       const failure = new Error(
         `QGIS engine exited (code ${code})${stderrTail ? `: ${stderrTail.trim().slice(-800)}` : ''}`,
       );
@@ -336,7 +347,7 @@ export function apply(ctx, config) {
       buffer = '';
     });
     scheduleIdle();
-    return child;
+    return worker;
   }
 
   function stopWorker() {
@@ -541,14 +552,38 @@ export function apply(ctx, config) {
     return result;
   }
 
+  /** Persist an agent-chosen QGIS directory beside the plugin (best effort). */
+  function persistQgisDir(dir) {
+    const file = path.join(HERE, 'qgis.config.json');
+    try {
+      const current = readLocalConfig();
+      current.qgisDir = dir;
+      fsSync.writeFileSync(file, `${JSON.stringify(current, null, 2)}\n`, 'utf8');
+      return file;
+    } catch {
+      return '';
+    }
+  }
+
   // ---- tools ----------------------------------------------------------- //
 
   ctx.tools.register({
     name: 'qgis_status',
     description:
       'Check the headless QGIS engine: installed QGIS version, providers, algorithm count, CJK fonts, output folders and ' +
-      'the interpreter being used. Call this first, and again whenever another qgis_* tool fails.',
-    parameters: { type: 'object', properties: {}, additionalProperties: false },
+      'the interpreter being used. Call this first, and again whenever another qgis_* tool fails. If automatic discovery ' +
+      'fails, pass qgis_dir with the directory that contains bin\\qgis-bin.exe; the choice is saved to qgis.config.json.',
+    parameters: {
+      type: 'object',
+      properties: {
+        qgis_dir: {
+          type: 'string',
+          description:
+            'Optional QGIS install directory (contains bin\\qgis-bin.exe). Use it when discovery fails; it is persisted for later calls.',
+        },
+      },
+      additionalProperties: false,
+    },
     output: {
       schema: {
         type: 'object',
@@ -556,6 +591,7 @@ export function apply(ctx, config) {
         properties: {
           ready: { type: 'boolean' },
           qgis_dir: { type: 'string' },
+          qgis_config: { type: 'string' },
           qgis_version: { type: 'string' },
           algorithm_count: { type: 'integer' },
           providers: { type: 'array', items: { type: 'string' } },
@@ -571,6 +607,7 @@ export function apply(ctx, config) {
           value.ready ? `QGIS engine ready · ${value.qgis_version ?? 'unknown'}` : 'QGIS engine not ready',
           `qgis: ${value.qgis_dir || '(not found)'}`,
         ];
+        if (value.qgis_config) lines.push(`config: ${value.qgis_config}`);
         if (value.algorithm_count !== undefined) lines.push(`algorithms: ${value.algorithm_count}`);
         if (value.providers) lines.push(`providers: ${value.providers.join(', ')}`);
         if (value.fonts) lines.push(`fonts: ${value.fonts.cjk?.join(', ') || '(none)'} in ${value.fonts.dir || '?'}`);
@@ -586,16 +623,36 @@ export function apply(ctx, config) {
         return [{ type: 'text', text: lines.join('\n') }];
       },
     },
-    async execute(_args, exec) {
+    async execute(args, exec) {
       const result = {
         ready: false,
         qgis_dir: engineDir(),
         exports: exportsDir(exec),
         scripts: scriptsDir(exec),
       };
+      const requested = typeof args.qgis_dir === 'string' ? args.qgis_dir.trim() : '';
+      if (requested) {
+        const dir = path.resolve(requested);
+        const valid =
+          fsSync.existsSync(path.join(dir, 'bin', 'qgis-bin.exe')) ||
+          fsSync.existsSync(path.join(dir, 'bin', 'qgis.exe'));
+        if (!valid) {
+          return {
+            ...result,
+            qgis_dir: dir,
+            error: `${dir} does not look like a QGIS install (no bin\\qgis-bin.exe).`,
+          };
+        }
+        cfg.qgisDir = dir;
+        resolvedDir = dir;
+        stopWorker();
+        const saved = persistQgisDir(dir);
+        if (saved) result.qgis_config = saved;
+        result.qgis_dir = dir;
+      }
       try {
         const status = await engineStatus(exec);
-        Object.assign(result, status, { ready: true });
+        Object.assign(result, status, { ready: true, ...(result.qgis_config ? { qgis_config: result.qgis_config } : {}) });
       } catch (error) {
         result.error = error instanceof Error ? error.message : String(error);
       }
