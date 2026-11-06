@@ -20,10 +20,14 @@ to be open and no GUI is involved:
 
 ## Install
 
-### npm (recommended)
+### npm
+
+The package is available as a release tarball today; once published to the npm registry the same install
+works by name.
 
 ```bash
-npm install -g dsh-qgis
+npm install -g https://github.com/cdllI/dsh-qgis/releases/download/v0.2.0/dsh-qgis-0.2.0.tgz
+# after publishing: npm install -g dsh-qgis
 ```
 
 Then install the bundle into DeepSeek Harness with `plugin_manager` `install_bundle`, using the package
